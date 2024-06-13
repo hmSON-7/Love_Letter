@@ -15,14 +15,14 @@ public class Effect {
         this.game = game;
     }
 
-    Player solve(LinkedList<Card> deck, LinkedList<Card> dummy, Card card, Player currentPlayer) {
+    Player solve(LinkedList<Card> deck, List<Card> dummy, Card card, Player currentPlayer) {
         switch (card.getValue()) {
             case 0: // 첩자
                 handleSpyEffect(currentPlayer);
                 break;
 
             case 1: // 경비병
-                handleGuardEffect(currentPlayer);
+                handleGuardEffect(currentPlayer, deck, dummy);
                 break;
 
             case 2: // 사제
@@ -30,7 +30,7 @@ public class Effect {
                 break;
 
             case 3: // 남작
-                handleBaronEffect(currentPlayer);
+                handleBaronEffect(currentPlayer, deck, dummy);
                 break;
 
             case 4: // 시녀
@@ -38,11 +38,11 @@ public class Effect {
                 break;
 
             case 5: // 왕자
-                handlePrinceEffect(currentPlayer);
+                handlePrinceEffect(currentPlayer, deck, dummy);
                 break;
 
             case 6: // 수상
-                handleChancellorEffect(currentPlayer, card);
+                handleChancellorEffect(currentPlayer, card, deck, dummy);
                 break;
 
             case 7: // 왕
@@ -54,7 +54,7 @@ public class Effect {
                 break;
 
             case 9: // 공주
-                handlePrincessEffect(currentPlayer, card);
+                handlePrincessEffect(currentPlayer, card, dummy);
                 break;
 
             default:
@@ -83,14 +83,18 @@ public class Effect {
         game.endTurn();
     }
 
-    private void handleGuardEffect(Player currentPlayer) {
+    private void handleGuardEffect(Player currentPlayer, LinkedList<Card> deck, List<Card> dummy) {
         game.getGui().showPlayerSelectionDialog(currentPlayer, playerList, pe -> {
-            Player targetPlayer = (Player) pe.getSource();
+            JButton button = (JButton) pe.getSource();
+            int targetPlayerNumber = Integer.parseInt(button.getActionCommand());
+            Player targetPlayer = playerList.get(targetPlayerNumber);
+
             if (targetPlayer.isGuarded() || targetPlayer.isRetired()) {
                 JOptionPane.showMessageDialog(null, "선택할 수 없는 플레이어입니다.");
                 return;
             }
-            game.getGui().showCardSelectionDialog(e -> {
+
+            game.getGui().showCardGuessDialog(e -> {
                 int guessedCard = Integer.parseInt(e.getActionCommand());
                 if (targetPlayer.getHands().getFirst().getValue() == guessedCard) {
                     System.out.println("Player " + targetPlayer.getNumber() + "의 카드가 맞았습니다!");
@@ -108,20 +112,27 @@ public class Effect {
 
     private void handlePriestEffect(Player currentPlayer) {
         game.getGui().showPlayerSelectionDialog(currentPlayer, playerList, pe -> {
-            Player targetPlayer = (Player) pe.getSource();
+            JButton button = (JButton) pe.getSource();
+            int targetPlayerNumber = Integer.parseInt(button.getActionCommand());
+            Player targetPlayer = playerList.get(targetPlayerNumber);
+
             System.out.println("Player " + targetPlayer.getNumber() + "의 카드는 " + targetPlayer.getHands().getFirst().getName() + " 입니다.");
             game.getGui().updatePlayerInfo(playerList);
             game.endTurn();
         });
     }
 
-    private void handleBaronEffect(Player currentPlayer) {
+    private void handleBaronEffect(Player currentPlayer, LinkedList<Card> deck, List<Card> dummy) {
         game.getGui().showPlayerSelectionDialog(currentPlayer, playerList, pe -> {
-            Player opponentPlayer = (Player) pe.getSource();
+            JButton button = (JButton) pe.getSource();
+            int opponentPlayerNumber = Integer.parseInt(button.getActionCommand());
+            Player opponentPlayer = playerList.get(opponentPlayerNumber);
+
             if (opponentPlayer.isGuarded() || opponentPlayer.isRetired()) {
                 JOptionPane.showMessageDialog(null, "선택할 수 없는 플레이어입니다.");
                 return;
             }
+
             Card opponentHand = opponentPlayer.getHands().getFirst();
             Card currentHand = currentPlayer.getHands().getFirst();
 
@@ -150,13 +161,17 @@ public class Effect {
         game.endTurn();
     }
 
-    private void handlePrinceEffect(Player currentPlayer) {
+    private void handlePrinceEffect(Player currentPlayer, LinkedList<Card> deck, List<Card> dummy) {
         game.getGui().showPlayerSelectionDialog(currentPlayer, playerList, pe -> {
-            Player opponentPlayer = (Player) pe.getSource();
+            JButton button = (JButton) pe.getSource();
+            int opponentPlayerNumber = Integer.parseInt(button.getActionCommand());
+            Player opponentPlayer = playerList.get(opponentPlayerNumber);
+
             if (opponentPlayer.isGuarded() || opponentPlayer.isRetired()) {
                 JOptionPane.showMessageDialog(null, "선택할 수 없는 플레이어입니다.");
                 return;
             }
+
             if (opponentPlayer.getHands().isEmpty()) {
                 System.out.println("상대 플레이어의 손에 카드가 없습니다!");
                 game.endTurn();
@@ -186,7 +201,7 @@ public class Effect {
         });
     }
 
-    private void handleChancellorEffect(Player currentPlayer, Card usedCard) {
+    private void handleChancellorEffect(Player currentPlayer, Card usedCard, LinkedList<Card> deck, List<Card> dummy) {
         currentPlayer.getHands().remove(usedCard);
         dummy.add(usedCard);
         game.getGui().updateDummyCard(usedCard);
@@ -216,11 +231,15 @@ public class Effect {
 
     private void handleKingEffect(Player currentPlayer) {
         game.getGui().showPlayerSelectionDialog(currentPlayer, playerList, pe -> {
-            Player opponentPlayer = (Player) pe.getSource();
+            JButton button = (JButton) pe.getSource();
+            int opponentPlayerNumber = Integer.parseInt(button.getActionCommand());
+            Player opponentPlayer = playerList.get(opponentPlayerNumber);
+
             if (opponentPlayer.isGuarded() || opponentPlayer.isRetired()) {
                 JOptionPane.showMessageDialog(null, "선택할 수 없는 플레이어입니다.");
                 return;
             }
+
             Card opponentHand = opponentPlayer.getHands().getFirst();
             Card currentHand = currentPlayer.getHands().getFirst();
 
@@ -243,7 +262,7 @@ public class Effect {
         game.endTurn();
     }
 
-    private void handlePrincessEffect(Player currentPlayer, Card card) {
+    private void handlePrincessEffect(Player currentPlayer, Card card, List<Card> dummy) {
         System.out.println("공주 카드가 버려집니다.");
         System.out.println("player " + currentPlayer.getNumber() + "는 공주 카드의 효과로 즉시 탈락합니다!");
         currentPlayer.setRetired(true);

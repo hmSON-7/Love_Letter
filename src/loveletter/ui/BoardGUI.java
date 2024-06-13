@@ -170,13 +170,13 @@ public class BoardGUI extends JFrame {
             for (Component comp : cardContainer.getComponents()) {
                 if (comp instanceof JPanel) {
                     JPanel cardSlot = (JPanel) comp;
+                    cardSlot.removeAll();
                     if (cardIndex < cards.size()) {
-                        JLabel cardLabel = new JLabel(cards.get(cardIndex).getName(), SwingConstants.CENTER);
-                        cardSlot.removeAll();
-                        cardSlot.add(cardLabel);
+                        JButton cardButton = new JButton(cards.get(cardIndex).getName());
+                        int finalCardIndex = cardIndex;
+                        cardButton.addActionListener(e -> game.useCard(game.getCurrentPlayer(), cards.get(finalCardIndex)));
+                        cardSlot.add(cardButton);
                         cardIndex++;
-                    } else {
-                        cardSlot.removeAll();
                     }
                     cardSlot.revalidate();
                     cardSlot.repaint();
@@ -226,6 +226,26 @@ public class BoardGUI extends JFrame {
         for (int i = 0; i < cards.size(); i++) {
             JButton button = new JButton(cards.get(i).getName());
             button.setActionCommand(String.valueOf(i));
+            button.addActionListener(callback);
+            button.addActionListener(e -> dialog.dispose());
+            dialog.add(button);
+        }
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    public void showCardGuessDialog(ActionListener callback) {
+        JDialog dialog = new JDialog(this, "카드 추측", true);
+        dialog.setLayout(new GridLayout(5, 2));
+        dialog.setSize(400, 300);
+
+        String[] cardNames = {"첩자", "사제", "남작", "시녀", "왕자", "수상", "왕", "백작 부인", "공주"};
+        int[] cardValues = {0, 2, 3, 4, 5, 6, 7, 8, 9};
+
+        for (int i = 0; i < cardNames.length; i++) {
+            JButton button = new JButton(cardNames[i]);
+            button.setActionCommand(String.valueOf(cardValues[i]));
             button.addActionListener(callback);
             button.addActionListener(e -> dialog.dispose());
             dialog.add(button);

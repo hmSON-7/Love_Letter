@@ -7,20 +7,20 @@ import java.util.*;
 public class Game {
     private ArrayList<Player> playerList;
     private LinkedList<Card> deck;
-    private LinkedList<Card> dummy;
+    private List<Card> dummy;
     private BoardGUI gui;
     private int currentPlayerNum;
 
     public Game() {
         this.playerList = new ArrayList<>();
         this.deck = new LinkedList<>();
-        this.dummy = new LinkedList<>();
+        this.dummy = new ArrayList<>();
     }
 
     public void start(BoardGUI gui) {
         this.gui = gui;
         deck = new LinkedList<>();
-        dummy = new LinkedList<>();
+        dummy = new ArrayList<>();
         playerList = new ArrayList<>();
         Effect ef = new Effect(playerList, this);
 
@@ -68,12 +68,6 @@ public class Game {
 
         gui.updatePlayerInfo(playerList);
         gui.updateDeckSize(deck.size());
-
-        gui.showCardSelectionDialog(e -> {
-            int cardIndex = Integer.parseInt(e.getActionCommand());
-            Card selectedCard = currentPlayer.getHands().get(cardIndex);
-            useCard(currentPlayer, selectedCard);
-        });
     }
 
     public void useCard(Player currentPlayer, Card card) {
