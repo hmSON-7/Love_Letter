@@ -92,18 +92,31 @@ public class Game {
                     }
                 }
 
-                String line = "";
+                String line = null;  // 입력값을 받음
                 try {
-                    br = new BufferedReader(new InputStreamReader(System.in));
-                    line = br.readLine();
+                    line = br.readLine().trim();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-                handNum = Integer.parseInt(line);
-                if (handNum > 1 || handNum < 0) {
-                    System.out.println("잘못된 입력입니다. 0 또는 1을 선택해주세요.");
-                    continue;
+                if (line.isEmpty()) {
+                    System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                    continue;  // 반복문 처음으로 돌아감
                 }
+
+                try {
+                    handNum = Integer.parseInt(line);
+
+                } catch (NumberFormatException e) {
+                    System.out.println("숫자를 입력해주세요.");
+                    continue;  // 반복문 처음으로 돌아감
+                }
+
+                // 선택한 카드 처리 로직
+                if (handNum < 0 || handNum >= currentPlayer.getHands().size()) {
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+                    continue;  // 반복문 처음으로 돌아감
+                }
+
                 break;
             }
             Card trashCard = currentPlayer.getHands().get(handNum);

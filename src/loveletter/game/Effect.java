@@ -62,7 +62,7 @@ public class Effect {
                 // 현재 생존한 모든 플레이어가 시녀의 보호를 받는지 확인
                 checkGuard = true;
                 for (Player player : playerList) {
-                    if(player.isRetired())
+                    if(player.isRetired() || player.equals(currentPlayer))
                         continue;
 
                     if(!player.isGuarded()) {
@@ -74,7 +74,7 @@ public class Effect {
                 // 만약 생존한 모든 플레이어가 시녀의 보호를 받는 경우 선택한 카드를 버림
                 if(checkGuard) {
                     System.out.println("생존한 모든 플레이어가 보호받고 있습니다... 해당 카드를 버립니다...");
-                    break;
+                    return null;
                 }
 
                 // 선택한 대상이 시녀의 효과를 받는 경우
@@ -230,10 +230,12 @@ public class Effect {
                     opponentPlayer = selectPlayer(currentPlayer);
                 }
 
+                if (opponentPlayer.getHands().isEmpty()) {
+                    System.out.println("상대 플레이어의 손에 카드가 없습니다!");
+                    break;
+                }
+
                 Card trashed = opponentPlayer.getHands().removeFirst();
-                opponentPlayer.getTrash().add(trashed);
-                gui.updateDummyCard(trashed);
-                dummy.add(trashed);
                 System.out.println(trashed + "를 버립니다.");
 
                 if(trashed.getValue() == 9) {
@@ -243,6 +245,10 @@ public class Effect {
                     opponentPlayer.setRetired(true);
                     return opponentPlayer;
                 }
+
+                opponentPlayer.getTrash().add(trashed);
+                gui.updateDummyCard(trashed);
+                dummy.add(trashed);
 
                 opponentPlayer.getHands().add(deck.poll());
 
