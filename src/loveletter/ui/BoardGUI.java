@@ -202,7 +202,11 @@ public class BoardGUI extends JFrame {
     public void updateDummyCard(Card card) {
         SwingUtilities.invokeLater(() -> {
             dummyPanel.removeAll();
-            dummyPanel.add(new JLabel("Dummy ( 마지막 카드 : " + card.getName() + " )", SwingConstants.CENTER), BorderLayout.NORTH);
+            if (card != null) {
+                dummyPanel.add(new JLabel("Dummy ( 마지막 카드 : " + card.getName() + " )", SwingConstants.CENTER), BorderLayout.NORTH);
+            } else {
+                dummyPanel.add(new JLabel("Dummy ( 카드 없음 )", SwingConstants.CENTER), BorderLayout.NORTH);
+            }
             JPanel dummyCardSlot = new JPanel();
             dummyCardSlot.setPreferredSize(dummyPanel.getSize());
             dummyCardSlot.setBackground(dummyPanel.getBackground());
@@ -211,6 +215,43 @@ public class BoardGUI extends JFrame {
             dummyPanel.revalidate();
             dummyPanel.repaint();
         });
+    }
+
+    public void showCardSelectionDialog(ActionListener callback) {
+        JDialog dialog = new JDialog(this, "카드 선택", true);
+        dialog.setLayout(new GridLayout(0, 3));
+        dialog.setSize(400, 300);
+
+        List<Card> cards = game.getCurrentPlayer().getHands();
+        for (int i = 0; i < cards.size(); i++) {
+            JButton button = new JButton(cards.get(i).getName());
+            button.setActionCommand(String.valueOf(i));
+            button.addActionListener(callback);
+            button.addActionListener(e -> dialog.dispose());
+            dialog.add(button);
+        }
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    public void showPlayerSelectionDialog(Player currentPlayer, List<Player> players, ActionListener callback) {
+        JDialog dialog = new JDialog(this, "플레이어 선택", true);
+        dialog.setLayout(new GridLayout(0, 2));
+        dialog.setSize(400, 300);
+
+        for (Player player : players) {
+            if (player != currentPlayer && !player.isRetired() && !player.isGuarded()) {
+                JButton button = new JButton("Player " + player.getNumber());
+                button.setActionCommand(String.valueOf(player.getNumber()));
+                button.addActionListener(callback);
+                button.addActionListener(e -> dialog.dispose());
+                dialog.add(button);
+            }
+        }
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
     public static void main(String[] args) {
